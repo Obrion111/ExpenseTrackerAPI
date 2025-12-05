@@ -10,6 +10,7 @@ import com.obrion.expense_tracker_api.repository.ExpenseRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class ExpenseNoteService {
@@ -34,13 +35,7 @@ public class ExpenseNoteService {
             throw new RuntimeException("Nota vazia");
         }
 
-
-
-
-
-
         ExpenseNote nova = new ExpenseNote();
-
         nova.setText(dto.text());
         nova.setCreatedAt(LocalDateTime.now());
         nova.setUpdatedAt(LocalDateTime.now());
@@ -56,7 +51,26 @@ public class ExpenseNoteService {
                 guardada.getUpdatedAt()
 
         );
+    }
 
+
+    public List<ExpenseNoteResponseDTO> getNotasPorDespesa(Long expenseId){
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow();
+
+        if (expense.getNotes() == null){
+            throw new RuntimeException("Nao existem notas para esta despesa");
+        }
+
+
+        return expense.getNotes()
+                .stream()
+                .map(nota -> new ExpenseNoteResponseDTO(
+                        nota.getId(),
+                        nota.getText(),
+                        nota.getCreatedAt(),
+                        nota.getUpdatedAt()
+                )).toList();
 
 
     }
